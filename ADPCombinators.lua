@@ -50,28 +50,34 @@ end
   The actual implementation
 --]]
 
-local parserConcat = closure2 (function (a, b, i, j)
-  return table.concat(a(i,j), b(i,j))
-end )
-
-local parserChild = closure2 (function (f, a, i, j)
-  return map( function (e) 
-                return function (parser)
-                      return f(e, parser)
-                end
-              end, a(i,j) )
-end )
-
-local parserSibling = closure2 (function (a, b, i, j)
-  result = {}
-  print('i',i,'j',j)
-  for k=i,j do
-    local f = a(i,k)
-    local y = b(k,j)
-    table.insert(result, f(y))
+local parserConcat = function (a, b)
+  return function(i, j)
+    return table.concat(a(i,j), b(i,j))
   end
-  return result
-end )
+end
+
+local parserChild = function (f, a)
+  return function (i, j)
+    return map( function (e) 
+                  return function (parser)
+                        return f(e, parser)
+                  end
+                end, a(i,j) )
+  end
+end
+
+local parserSibling = function (a, b) 
+  return function(i, j)
+    result = {}
+    print('i',i,'j',j)
+    for k=i,j do
+      local f = a(i,k)
+      local y = b(k,j)
+      table.insert(result, f(y))
+    end
+    return result
+  end
+end
 
 local parserEmpty = closure0 (function (i, j)
   if i == j then
