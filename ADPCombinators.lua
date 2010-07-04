@@ -60,15 +60,10 @@ local parserSibling = function (a, b)
       local f = a(i,k)
       local values = b(k+1,j)
       io.write('startIter \t',i, ' ',k ,' ', j,' sizes: ', #f,'', #values,'\n')
-      for fi=1,#f do  --]]for _,fun in ipairs(f) do
-        for vi=1,#values do --]]for _,y in ipairs(values) do
-          table.insert(result, f[fi](values[vi]))
-          print('fun=>',f[fi], 'y=>', values[vi], '=', f[fi](values[vi]), 'size', #result)
-          for t,tt in pairs(result) do
-            print('res', t, tt)
-          end
-          --print('fun=>',fun, 'y=>', y, '=', fun(y))
-          --table.insert(result, fun(y))
+      for _,fun in ipairs(f) do
+        for _,y in ipairs(values) do
+          print('fun=>',fun, 'y=>', y, '=', fun(y))
+          table.insert(result, fun(y))
         end
       end
     end
