@@ -172,6 +172,16 @@ end
 
 -- define operators for exporting
 
+parserAnyChar = function (a) 
+  return function (i,j) 
+      if i == j then
+        return {string.sub(a, j, j)}
+      else
+        return {}
+      end
+    end
+end
+
 parserChar = function (a, c) 
   return function (i,j) 
       if i == j and string.sub(a, j, j) == c then

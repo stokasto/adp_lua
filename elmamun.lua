@@ -91,8 +91,8 @@ setmetatable(buyer, bill_algebra)
 
 -- start the calculation
 
-local sellerRes = seller(1,9, 9) 
-local buyerRes = buyer(1,9, 9) 
+local sellerRes = seller(1, 9, 9) 
+local buyerRes = buyer(1, 9, 9) 
 
 -- print the examples
 
