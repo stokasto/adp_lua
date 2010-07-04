@@ -15,35 +15,19 @@ local function map (f, t)
   end
   return t
 end
--- add a simple closure construct 
-local function closure2(f) 
-  return function(a,b)
-    return function(i,j)
-      --local i = i
-      --local j = j
-      return f(a,b,i,j)
-    end
-  end
-end
 
-local function closure1(f) 
-  return function(a)
-    return function(i,j)
-      --local i = i
-      --local j = j
-      return f(a,i,j)
-    end
+local function concat(t1,t2)
+  idx = 1
+  result = {}
+  for _,v in ipairs(t1) do
+    result[idx]=v
+    idx = idx + 1
   end
-end
-
-local function closure0(f) 
-  return function()
-    return function(i,j)
-      --local i = i
-      --local j = j
-      return f(i,j)
-    end
+  for _,v in ipairs(t2) do
+    result[idx]=v
+    idx = idx + 1
   end
+  return result
 end
 
 --[[
@@ -52,15 +36,16 @@ end
 
 local parserConcat = function (a, b)
   return function(i, j)
-    return table.concat(a(i,j), b(i,j))
+    return concat(a(i,j), b(i,j))
   end
 end
 
 local parserChild = function (f, a)
   return function (i, j)
     return map( function (e) 
-                  return function (parser)
-                        return f(e, parser)
+                  return function (...)
+                        callArgs = concat({e}, arg)
+                        return f(callArgs)
                   end
                 end, a(i,j) )
   end
@@ -69,23 +54,27 @@ end
 local parserSibling = function (a, b) 
   return function(i, j)
     result = {}
-    print('i',i,'j',j)
+    --print('i',i,'j',j)
     for k=i,j do
       local f = a(i,k)
-      local y = b(k,j)
-      table.insert(result, f(y))
+      local values = b(k,j)
+      for _,fun in ipairs(f) do
+        for _,y in ipairs(values) do
+          table.insert(result, fun(y))
+        end
+      end
     end
     return result
   end
 end
 
-local parserEmpty = closure0 (function (i, j)
+local parserEmpty = function (i, j)
   if i == j then
     return {'empty'}
   else
     return {}
   end
-end )
+end
 
 local parserChar = function (a, c) 
   return function (i,j) 
@@ -108,13 +97,16 @@ local evalString = '1+1'
 local number = parserChar(evalString, '1')
 local plus = parserChar(evalString, '+')
 
-local function add (a,b)
-    return a+b
+local function add (args)
+    for k,v in ipairs(args) do
+      print('pos:',k,'=>',v)
+    end
+    return 0
 end
 
-local formula = number -iii- add -ttt- number -- -sss- plus -sss- number)
+local formula = (number) -iii- (add -ttt- number -sss- plus -sss- number)
 
-for k,v in ipairs(formula(0,1)) do
+for k,v in ipairs(formula(0,3)) do
   print(k,v)
 end
 
