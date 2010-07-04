@@ -43,9 +43,8 @@ end
 local parserChild = function (f, a)
   return function (i, j)
     return map( function (e) 
-                  return function (...)
-                        callArgs = concat({e}, arg)
-                        return f(callArgs)
+                  return function (parser)
+                        return f(e, parser)
                   end
                 end, a(i,j) )
   end
@@ -97,11 +96,12 @@ local evalString = '1+1'
 local number = parserChar(evalString, '1')
 local plus = parserChar(evalString, '+')
 
-local function add (args)
-    for k,v in ipairs(args) do
-      print('pos:',k,'=>',v)
+local function add (a)
+    return function(c)
+      return function(b)
+        return a+b
+      end
     end
-    return 0
 end
 
 local formula = (number) -iii- (add -ttt- number -sss- plus -sss- number)
