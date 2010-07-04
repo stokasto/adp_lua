@@ -65,8 +65,6 @@ unitDistance.h = function (candidates)
   return {list_min(candidates)}
 end
 
-unitDistance['__index'] = unitDistance
-
 -- make the unitDistance algebra a proper edit_algebra
 setmetatable(unitDistance, edit_algebra)
 

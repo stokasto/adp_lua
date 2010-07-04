@@ -56,8 +56,6 @@ seller.h = function (candidates)
   return {list_max(candidates)}
 end
 
-seller['__index'] = seller
-
 -- make the seller algebra a proper bill_algebra
 setmetatable(seller, bill_algebra)
 
@@ -83,8 +81,6 @@ end
 buyer.h = function (candidates)
   return {list_min(candidates)}
 end
-
-buyer['__index'] = buyer
 
 -- make the buyer algebra a proper bill_algebra
 setmetatable(buyer, bill_algebra)
