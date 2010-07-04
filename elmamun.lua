@@ -27,8 +27,8 @@ bill_algebra['__call'] = function (self,i,j, n)
   -- special treatment of the starting symbol
   local function formula(i,j)
                 return  tabulate( ((number) 
-                     -iii- (add -ttt- formula -ssr- plus -sss- formula)
-                     -iii- (mult -ttt- formula -ssr- times -sss- formula)) -ccc- h, tab, n )(i,j)
+                     -iii- (add -ttt- formula -ss_- plus -sss- formula)
+                     -iii- (mult -ttt- formula -ss_- times -sss- formula)) -ccc- h, tab, n )(i,j)
   end
   return formula(i,j)
 end

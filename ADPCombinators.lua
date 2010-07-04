@@ -70,7 +70,7 @@ local parserSibling = function (a, b)
         end
       end
     end
-    --io.write('resSize ', #result, '\n')
+    --io.write('resSize ' .. #result .. '\n')
     return result
   end
 end
@@ -100,6 +100,57 @@ local parserSingleSiblingL = function (a, b)
         for _,y in ipairs(values) do
           table.insert(result, fun(y))
         end
+    end
+    return result
+  end
+end
+
+local parserMultSiblingL = function (a, b) 
+  return function(i, j)
+    local result = {}
+    if i >= j then return result end
+    for k=i+1,j do
+      local f = a(i,k)
+      local values = b(k+1,j)
+      for _,fun in ipairs(f) do
+        for _,y in ipairs(values) do
+          table.insert(result, fun(y))
+        end
+      end
+    end
+    return result
+  end
+end
+
+local parserMultSiblingR = function (a, b) 
+  return function(i, j)
+    local result = {}
+    if i >= j then return result end
+    for k=i,j-1 do
+      local f = a(i,k)
+      local values = b(k+1,j)
+      for _,fun in ipairs(f) do
+        for _,y in ipairs(values) do
+          table.insert(result, fun(y))
+        end
+      end
+    end
+    return result
+  end
+end
+
+local parserMultSiblingLR = function (a, b) 
+  return function(i, j)
+    local result = {}
+    if i + 1 >= j then return result end
+    for k=i+1,j-1 do
+      local f = a(i,k)
+      local values = b(k+1,j)
+      for _,fun in ipairs(f) do
+        for _,y in ipairs(values) do
+          table.insert(result, fun(y))
+        end
+      end
     end
     return result
   end
@@ -147,8 +198,11 @@ end
 iii = infix(parserConcat)
 ttt = infix(parserChild)
 sss = infix(parserSibling)
-ssr = infix(parserSingleSiblingR)
-lss = infix(parserSingleSiblingL)
+ss_ = infix(parserSingleSiblingR)
+_ss = infix(parserSingleSiblingL)
+lss = infix(parserMultSiblingL)
+ssr = infix(parserMultSiblingR)
+lsr = infix(parserMultSiblingLR)
 ccc = infix(parserChoice)
 empty = infix(parserEmpty)
 
