@@ -157,15 +157,15 @@ local parserChar = function (a, c)
     end
 end
 
-local tabulate = function (a, tab) 
+local tabulate = function (a, tab, n) 
   return function (i,j) 
-    if tab[i..''..j] then
+    if tab[i * n + j] then
       --print('get',tab[i..''..j][1])
-      return tab[i..''..j]
+      return tab[i * n + j]
     else
-      tab[i..''..j] = a(i,j)
+      tab[i * n + j] = a(i,j)
       --print('set',tab[i..''..j][1])
-      return tab[i..''..j]
+      return tab[i * n + j]
     end
   end
 end
