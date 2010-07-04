@@ -185,11 +185,14 @@ local evalString = '1+2*3+8*4'
 
 -- define the problem
 bill_algebra = {}
-bill_algebra['__call'] = function (self,i,j) 
+bill_algebra['__call'] = function (self,i,j, n) 
+  -- define functions and tables
   local add = self.add
   local mult = self.mult
   local h = self.h
   local tab = {}
+  
+  -- this is the grammar
   local digit = parserChar(evalString, '1')
   local plus = parserChar(evalString, '+')
   local times = parserChar(evalString, '*')
@@ -200,10 +203,11 @@ bill_algebra['__call'] = function (self,i,j)
                  -iii-  parserChar(evalString, '9') -iii- parserChar(evalString, '0')
 
 
+  -- special treatment of the starting symbol
   local function formula(i,j)
                 return  tabulate( ((number) 
                      -iii- (add -ttt- formula -ssr- plus -sss- formula)
-                     -iii- (mult -ttt- formula -ssr- times -sss- formula)) -ccc- h, tab )(i,j)
+                     -iii- (mult -ttt- formula -ssr- times -sss- formula)) -ccc- h, tab, n )(i,j)
   end
   return formula(i,j)
 end
@@ -266,8 +270,8 @@ setmetatable(buyer, bill_algebra)
 
 -- start the calculation
 
-local sellerRes = seller(1,9) 
-local buyerRes = buyer(1,9) 
+local sellerRes = seller(1,9, 9) 
+local buyerRes = buyer(1,9, 9) 
 
 for k,v in ipairs(buyerRes) do
   print(v)
