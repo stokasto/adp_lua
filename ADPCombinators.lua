@@ -9,11 +9,12 @@ end
 --]]
 -- add map functionality to lua
 local function map (f, t)
+  res = {}
   for i, v in ipairs(t) do
     --print('partial application to', t[i])
-    t[i] = f(t[i])
+    res[i] = f(t[i])
   end
-  return t
+  return res
 end
 
 -- some more helpers
@@ -156,6 +157,19 @@ local parserChar = function (a, c)
     end
 end
 
+local tabulate = function (a, tab) 
+  return function (i,j) 
+    if tab[i..''..j] then
+      --print('get',tab[i..''..j][1])
+      return tab[i..''..j]
+    else
+      tab[i..''..j] = a(i,j)
+      --print('set',tab[i..''..j][1])
+      return tab[i..''..j]
+    end
+  end
+end
+
 -- define operators
 local iii = infix(parserConcat)
 local ttt = infix(parserChild)
@@ -167,7 +181,7 @@ local empty = infix(parserEmpty)
 
 --[[-- Test with ElMammuns --]]--
 
-local evalString = '1+2*3'
+local evalString = '1+2*3+8*4'
 
 -- define the problem
 bill_algebra = {}
@@ -175,7 +189,7 @@ bill_algebra['__call'] = function (self,i,j)
   local add = self.add
   local mult = self.mult
   local h = self.h
-  
+  local tab = {}
   local digit = parserChar(evalString, '1')
   local plus = parserChar(evalString, '+')
   local times = parserChar(evalString, '*')
@@ -187,9 +201,9 @@ bill_algebra['__call'] = function (self,i,j)
 
 
   local function formula(i,j)
-                return  ( ((number) 
+                return  tabulate( ((number) 
                      -iii- (add -ttt- formula -ssr- plus -sss- formula)
-                     -iii- (mult -ttt- formula -ssr- times -sss- formula)) -ccc- h )(i,j)
+                     -iii- (mult -ttt- formula -ssr- times -sss- formula)) -ccc- h, tab )(i,j)
   end
   return formula(i,j)
 end
@@ -252,8 +266,8 @@ setmetatable(buyer, bill_algebra)
 
 -- start the calculation
 
-local sellerRes = seller(1,5) 
-local buyerRes = buyer(1,5) 
+local sellerRes = seller(1,9) 
+local buyerRes = buyer(1,9) 
 
 for k,v in ipairs(buyerRes) do
   print(v)
