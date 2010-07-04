@@ -1,5 +1,5 @@
 
--- This is a little hack to get infix operators
+-- This is a little hack to get infix operators taken from the lua wiki
 local function infix(f)
   local mt = { __sub = function(self, b) return f(self[1], b) end }
   return setmetatable({}, { __sub = function(a, _) return setmetatable({ a }, mt) end })
@@ -32,34 +32,6 @@ local function concat(t1,t2)
   end
   return result
 end
-
-local function list_max(l)
-  if #l < 1 then 
-    return 0 
-  else
-    local best = l[1]
-    for i,v in ipairs(l) do
-      if v > best then
-        best = v
-      end
-    end
-    return best
-  end
-end  
-
-local function list_min(l)
-  if #l < 1 then 
-    return 0 
-  else
-    local best = l[1]
-    for i,v in ipairs(l) do
-      if v < best then
-        best = v
-      end
-    end
-    return best
-  end
-end  
 
 --[[
   The actual implementation
@@ -147,7 +119,9 @@ local parserEmpty = function (i, j)
   end
 end
 
-local parserChar = function (a, c) 
+-- define operators for exporting
+
+parserChar = function (a, c) 
   return function (i,j) 
       if i == j and string.sub(a, j, j) == c then
         return {c}
@@ -157,7 +131,7 @@ local parserChar = function (a, c)
     end
 end
 
-local tabulate = function (a, tab, n) 
+tabulate = function (a, tab, n) 
   return function (i,j) 
     if tab[i * n + j] then
       --print('get',tab[i..''..j][1])
@@ -170,109 +144,39 @@ local tabulate = function (a, tab, n)
   end
 end
 
--- define operators
-local iii = infix(parserConcat)
-local ttt = infix(parserChild)
-local sss = infix(parserSibling)
-local ssr = infix(parserSingleSiblingR)
-local lss = infix(parserSingleSiblingL)
-local ccc = infix(parserChoice)
-local empty = infix(parserEmpty)
+iii = infix(parserConcat)
+ttt = infix(parserChild)
+sss = infix(parserSibling)
+ssr = infix(parserSingleSiblingR)
+lss = infix(parserSingleSiblingL)
+ccc = infix(parserChoice)
+empty = infix(parserEmpty)
 
---[[-- Test with ElMammuns --]]--
-
-local evalString = '1+2*3+8*4'
-
--- define the problem
-bill_algebra = {}
-bill_algebra['__call'] = function (self,i,j, n) 
-  -- define functions and tables
-  local add = self.add
-  local mult = self.mult
-  local h = self.h
-  local tab = {}
-  
-  -- this is the grammar
-  local digit = parserChar(evalString, '1')
-  local plus = parserChar(evalString, '+')
-  local times = parserChar(evalString, '*')
-  local number =        parserChar(evalString, '1') -iii- parserChar(evalString, '2')
-                 -iii-  parserChar(evalString, '3') -iii- parserChar(evalString, '4')
-                 -iii-  parserChar(evalString, '5') -iii- parserChar(evalString, '6')
-                 -iii-  parserChar(evalString, '7') -iii- parserChar(evalString, '8')
-                 -iii-  parserChar(evalString, '9') -iii- parserChar(evalString, '0')
-
-
-  -- special treatment of the starting symbol
-  local function formula(i,j)
-                return  tabulate( ((number) 
-                     -iii- (add -ttt- formula -ssr- plus -sss- formula)
-                     -iii- (mult -ttt- formula -ssr- times -sss- formula)) -ccc- h, tab, n )(i,j)
+-- and some useful functions
+function list_max(l)
+  if #l < 1 then 
+    return 0 
+  else
+    local best = l[1]
+    for i,v in ipairs(l) do
+      if v > best then
+        best = v
+      end
+    end
+    return best
   end
-  return formula(i,j)
-end
+end  
 
--- the seller algebra
-local seller = {}
-
-seller.add = function (a)
-    return function(c)
-      return function(b)
-        return a+b
+function list_min(l)
+  if #l < 1 then 
+    return 0 
+  else
+    local best = l[1]
+    for i,v in ipairs(l) do
+      if v < best then
+        best = v
       end
     end
-end
-
-seller.mult = function (a)
-    return function(c)
-      return function(b)
-        return a*b
-      end
-    end
-end
-
-seller.h = function (candidates)
-  return {list_max(candidates)}
-end
-
-seller['__index'] = seller
-
--- make the seller algebra a proper bill_algebra
-setmetatable(seller, bill_algebra)
-
--- the buyer algebra
-local buyer = {}
-
-buyer.add = function (a)
-    return function(c)
-      return function(b)
-        return a+b
-      end
-    end
-end
-
-buyer.mult = function (a)
-    return function(c)
-      return function(b)
-        return a*b
-      end
-    end
-end
-
-buyer.h = function (candidates)
-  return {list_min(candidates)}
-end
-
-buyer['__index'] = buyer
-
--- make the buyer algebra a proper bill_algebra
-setmetatable(buyer, bill_algebra)
-
--- start the calculation
-
-local sellerRes = seller(1,9, 9) 
-local buyerRes = buyer(1,9, 9) 
-
-for k,v in ipairs(buyerRes) do
-  print(v)
-end
+    return best
+  end
+end  
